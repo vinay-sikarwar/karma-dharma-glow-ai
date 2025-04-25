@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Book, Lotus, SendHorizontal, User, Star, Sparkles, BookOpen } from "lucide-react";
+import { Book, BellRing, SendHorizontal, User, Star, Sparkles, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -91,7 +90,7 @@ const AIAdvisor = () => {
                 <Avatar>
                   <AvatarImage src="/placeholder.svg" />
                   <AvatarFallback className="bg-spiritual-gradient text-white">
-                    <Lotus className="h-5 w-5" />
+                    <BellRing className="h-5 w-5" />
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -120,7 +119,7 @@ const AIAdvisor = () => {
                         : 'bg-cosmicPurple/10 rounded-tr-2xl rounded-tl-sm rounded-br-2xl animate-fade-in'
                     } p-4`}>
                       {message.sender === 'ai' && (
-                        <Lotus className="h-5 w-5 mr-2 mt-1 text-cosmicPurple shrink-0" />
+                        <BellRing className="h-5 w-5 mr-2 mt-1 text-cosmicPurple shrink-0" />
                       )}
                       <div>
                         <p className="text-gray-800 dark:text-gray-200">{message.content}</p>

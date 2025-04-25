@@ -1,5 +1,4 @@
-
-import { Lotus } from "lucide-react";
+import { BellRing } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -30,7 +29,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <Lotus className="h-8 w-8 text-mystic mr-2" />
+              <BellRing className="h-8 w-8 text-mystic mr-2" />
               <span className="font-playfair text-xl font-bold">
                 <span className="text-cosmicPurple">Karma</span>
                 <span className="text-saffron">&</span>

@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, BookUser, Flower, Infinity, Lotus, Meditation, Star } from "lucide-react";
+import { BookOpen, BookUser, Flower, Infinity, BellRing, Bell, Star } from "lucide-react";
 
 const ResourcesSection = () => {
   const concepts = [
@@ -16,7 +16,7 @@ const ResourcesSection = () => {
     },
     {
       title: "Dharma",
-      icon: <Lotus className="h-8 w-8 text-mystic mb-2" />,
+      icon: <BellRing className="h-8 w-8 text-mystic mb-2" />,
       description: "Righteous conduct, moral duty, and one's purpose in life.",
       content: "Dharma refers to the religious, moral, ethical and legal duties, which inform the spiritual path one should follow. It is often referred to as 'righteousness' or 'duty.' Different people have different dharmas according to their age, gender, class, community, occupation and capability.",
       quote: "Better is one's own dharma though imperfectly carried out than the dharma of another carried out perfectly.",
@@ -32,7 +32,7 @@ const ResourcesSection = () => {
     },
     {
       title: "Samsara",
-      icon: <Meditation className="h-8 w-8 text-divineBlue mb-2" />,
+      icon: <Bell className="h-8 w-8 text-divineBlue mb-2" />,
       description: "The continuous cycle of life, death, and rebirth.",
       content: "Samsara is the repeating cycle of birth, life, death and rebirth. It is driven by karma and continues until moksha is attained. The quality of existence in each cycle depends on one's accumulated karma. Breaking free from samsara requires understanding the impermanence of life and following one's dharma.",
       quote: "As a man casts off worn-out garments and puts on others that are new, similarly the embodied soul casts off worn-out bodies and enters into others that are new.",

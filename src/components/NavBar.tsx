@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Lotus, Moon, Sun } from "lucide-react";
+import { Menu, X, BellRing, Moon, Sun } from "lucide-react";
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,7 +41,7 @@ const NavBar = () => {
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <a href="#" className="flex items-center space-x-2">
-          <Lotus className="h-8 w-8 text-mystic" />
+          <BellRing className="h-8 w-8 text-mystic" />
           <span className="font-playfair text-xl font-bold">
             <span className="text-cosmicPurple">Karma</span>
             <span className="text-saffron">&</span>
