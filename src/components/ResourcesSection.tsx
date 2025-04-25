@@ -67,12 +67,12 @@ const ResourcesSection = () => {
     {
       title: "Meditation",
       description: "Focused mental practice to achieve clarity and spiritual insight.",
-      icon: <Meditation className="h-5 w-5 text-mystic" />,
+      icon: <BellRing className="h-5 w-5 text-mystic" />,
     },
     {
       title: "Yoga",
       description: "Physical, mental, and spiritual practices that aim to unite body, mind, and spirit.",
-      icon: <Lotus className="h-5 w-5 text-saffron" />,
+      icon: <Flower className="h-5 w-5 text-saffron" />,
     },
     {
       title: "Bhakti",
