@@ -1,4 +1,3 @@
-
 interface GeminiResponse {
   candidates: {
     content: {
@@ -10,10 +9,11 @@ interface GeminiResponse {
 }
 
 export interface KarmaReading {
-  emotionalState: string;
-  chakra: string;
-  dharmaAdvice: string;
-  dailyTask: string;
+  selectedSpoke: string;
+  karmaInsight: string;
+  spiritualPractice: string;
+  affirmation: string;
+  associatedChakra: string;
 }
 
 const API_KEY = "AIzaSyDEYqEOBQyethqZd8MYtIjO9Z-SP5BLxK8";
@@ -68,7 +68,7 @@ export async function generateGeminiResponse(userMessage: string): Promise<strin
 export async function generateKarmaReading(userReflection: string, userName: string = "", birthDate: string = ""): Promise<KarmaReading> {
   try {
     const userContext = userName && birthDate ? 
-      `User name: ${userName}, Birth date: ${birthDate}. Based on this information and the user's reflection` : 
+      `For user: ${userName}, born on ${birthDate}. Based on their reflection` : 
       "Based on the user's reflection";
     
     const response = await fetch(
@@ -83,15 +83,30 @@ export async function generateKarmaReading(userReflection: string, userName: str
             {
               parts: [
                 {
-                  text: `${userContext}, provide a "Karma Reading" with these elements:
-                  1. Emotional State: Analyze the sentiment and provide a short description of their emotional state
-                  2. Associated Chakra: Which of the seven chakras (Root, Sacral, Solar Plexus, Heart, Throat, Third Eye, Crown) is most relevant to their situation and why
-                  3. Daily Dharma Advice: A spiritual quote or teaching relevant to their situation
-                  4. Simple Daily Task: A small action they can take today to improve their karma
-                  
-                  Format the response as JSON with fields: emotionalState, chakra, dharmaAdvice, dailyTask
-                  
-                  User reflection: ${userReflection}`
+                  text: `You are a wise spiritual companion. ${userContext}: "${userReflection}"
+
+You are about to reveal a Dharma Wheel Insight. The Dharma Wheel has 8 spokes: 
+1. Compassion  
+2. Wisdom  
+3. Patience  
+4. Discipline  
+5. Truth  
+6. Letting Go  
+7. Gratitude  
+8. Focus
+
+Based on their reflection, select one spoke that resonates most.
+
+Respond in this format:
+---
+Selected Dharma Spoke: <one of the eight above>
+Karma Insight: <Give a poetic, reflective message (2-4 lines) that speaks to their spiritual state>
+Suggested Spiritual Practice: <One practical action>
+Affirmation or Mantra: <A short, powerful affirmation>
+Associated Chakra: <Name the chakra this insight is linked to>
+
+Keep the tone warm, mystical, and wise — like a spiritual teacher or oracle.
+Format as JSON with fields: selectedSpoke, karmaInsight, spiritualPractice, affirmation, associatedChakra`
                 }
               ]
             }
@@ -100,37 +115,39 @@ export async function generateKarmaReading(userReflection: string, userName: str
       }
     );
 
-    const data = await response.json() as GeminiResponse;
+    const data = await response.json();
     
     if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
       try {
         return JSON.parse(data.candidates[0].content.parts[0].text) as KarmaReading;
       } catch (parseError) {
         console.error("Error parsing karma reading:", parseError);
-        // Fallback reading if JSON parsing fails
         return {
-          emotionalState: "Seeking balance",
-          chakra: "Heart Chakra",
-          dharmaAdvice: "The journey of a thousand miles begins with a single step.",
-          dailyTask: "Practice 5 minutes of mindful breathing"
+          selectedSpoke: "Wisdom",
+          karmaInsight: "In the silence between thoughts, wisdom blooms like a lotus.",
+          spiritualPractice: "Practice 5 minutes of mindful breathing",
+          affirmation: "I am connected to infinite wisdom",
+          associatedChakra: "Third Eye Chakra (Ajna)"
         };
       }
     } else {
       console.error("Unexpected karma reading response format:", data);
       return {
-        emotionalState: "Seeking balance",
-        chakra: "Heart Chakra",
-        dharmaAdvice: "The journey of a thousand miles begins with a single step.",
-        dailyTask: "Practice 5 minutes of mindful breathing"
+        selectedSpoke: "Wisdom",
+        karmaInsight: "In the silence between thoughts, wisdom blooms like a lotus.",
+        spiritualPractice: "Practice 5 minutes of mindful breathing",
+        affirmation: "I am connected to infinite wisdom",
+        associatedChakra: "Third Eye Chakra (Ajna)"
       };
     }
   } catch (error) {
     console.error("Error generating karma reading:", error);
     return {
-      emotionalState: "Seeking balance",
-      chakra: "Heart Chakra",
-      dharmaAdvice: "The journey of a thousand miles begins with a single step.",
-      dailyTask: "Practice 5 minutes of mindful breathing"
+      selectedSpoke: "Wisdom",
+      karmaInsight: "In the silence between thoughts, wisdom blooms like a lotus.",
+      spiritualPractice: "Practice 5 minutes of mindful breathing",
+      affirmation: "I am connected to infinite wisdom",
+      associatedChakra: "Third Eye Chakra (Ajna)"
     };
   }
 }

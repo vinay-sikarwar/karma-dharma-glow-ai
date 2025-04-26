@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Heart, Star, Flower, Moon, Calendar, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateKarmaReading, KarmaReading as KarmaReadingType } from "@/utils/gemini-api";
+import { DharmaWheel } from "./DharmaWheel";
+import { motion } from "framer-motion";
 
 // Map of chakras to their associated symbols and colors
 const chakraInfo: Record<string, { icon: React.ReactNode, color: string }> = {
@@ -34,10 +35,12 @@ const KarmaReading = () => {
   const [reading, setReading] = useState<KarmaReadingType | null>(null);
   const [showUserForm, setShowUserForm] = useState(false);
   const { toast } = useToast();
+  const [isWheelSpinning, setIsWheelSpinning] = useState(false);
 
   const handleGetReading = async () => {
     if (!reflection.trim()) return;
     
+    setIsWheelSpinning(true);
     setIsLoading(true);
     
     try {
@@ -56,6 +59,7 @@ const KarmaReading = () => {
       });
     } finally {
       setIsLoading(false);
+      setTimeout(() => setIsWheelSpinning(false), 1000);
     }
   };
 
@@ -157,49 +161,63 @@ const KarmaReading = () => {
                   </div>
                 )
               ) : (
-                <div className="space-y-8 animate-fade-in">
-                  <div className="p-6 rounded-xl bg-white/50 dark:bg-gray-800/50 shadow-sm border border-mystic/20">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                      <div className={`p-4 rounded-full ${getChakraDetails(reading.chakra).color} shadow-lg`}>
-                        {getChakraDetails(reading.chakra).icon}
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-lg mb-1">Emotional State</h3>
-                        <p className="text-gray-700 dark:text-gray-300 text-lg">{reading.emotionalState}</p>
-                        <div className="mt-3">
+                <motion.div 
+                  className="space-y-8 animate-fade-in"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <DharmaWheel 
+                    selectedSpoke={reading.selectedSpoke}
+                    isSpinning={isWheelSpinning}
+                  />
+
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-xl bg-white/50 dark:bg-gray-800/50 shadow-sm border border-mystic/20">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium text-lg mb-2 text-cosmicPurple">Karma Insight</h3>
+                          <p className="text-gray-700 dark:text-gray-300 text-lg italic">
+                            "{reading.karmaInsight}"
+                          </p>
+                        </div>
+                        <div className="pt-4 border-t border-mystic/20">
                           <span className="text-sm text-cosmicPurple font-medium flex items-center gap-1">
-                            <Star className="h-4 w-4" />
-                            {reading.chakra}
+                            {getChakraDetails(reading.associatedChakra).icon}
+                            {reading.associatedChakra}
                           </span>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="bg-gradient-to-r from-mystic/10 to-cosmicPurple/10 p-6 rounded-xl border border-mystic/30 shadow-inner">
-                    <h3 className="font-playfair text-xl mb-4 text-cosmicPurple">Daily Dharma Advice</h3>
-                    <p className="italic text-lg text-gray-700 dark:text-gray-300 leading-relaxed">"{reading.dharmaAdvice}"</p>
-                  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-mystic/10 to-cosmicPurple/10 p-6 rounded-xl border border-mystic/30 shadow-inner">
+                        <h3 className="font-playfair text-xl mb-4 text-cosmicPurple">Daily Practice</h3>
+                        <p className="text-lg text-gray-700 dark:text-gray-300">
+                          {reading.spiritualPractice}
+                        </p>
+                      </div>
 
-                  <div className="bg-gradient-to-r from-saffron/10 to-sage/10 p-6 rounded-xl border border-saffron/30 shadow-inner">
-                    <h3 className="font-playfair text-xl mb-4 text-saffron flex items-center gap-2">
-                      <Moon className="h-5 w-5" />
-                      Daily Practice
-                    </h3>
-                    <p className="text-lg text-gray-700 dark:text-gray-300">{reading.dailyTask}</p>
-                  </div>
+                      <div className="bg-gradient-to-r from-saffron/10 to-sage/10 p-6 rounded-xl border border-saffron/30 shadow-inner">
+                        <h3 className="font-playfair text-xl mb-4 text-saffron">Daily Affirmation</h3>
+                        <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                          {reading.affirmation}
+                        </p>
+                      </div>
+                    </div>
 
-                  <Button 
-                    onClick={() => {
-                      setReading(null);
-                      setShowUserForm(true);
-                    }} 
-                    variant="outline" 
-                    className="w-full border-mystic hover:bg-mystic/10 text-base py-6"
-                  >
-                    Get Another Reading
-                  </Button>
-                </div>
+                    <Button 
+                      onClick={() => {
+                        setReading(null);
+                        setShowUserForm(true);
+                      }} 
+                      variant="outline" 
+                      className="w-full border-mystic hover:bg-mystic/10 text-base py-6"
+                    >
+                      Get Another Reading
+                    </Button>
+                  </div>
+                </motion.div>
               )}
             </CardContent>
 
