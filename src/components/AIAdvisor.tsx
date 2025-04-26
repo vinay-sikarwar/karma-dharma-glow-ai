@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Book, BellRing, SendHorizontal, User, Star, Sparkles, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { generateGeminiResponse } from "@/utils/gemini-api";
 
 interface Message {
   id: number;
@@ -26,56 +27,6 @@ const AIAdvisor = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
-  // Gemini API key - normally this would be in an environment variable or stored securely
-  const geminiApiKey = "AIzaSyDEYqEOBQyethqZd8MYtIjO9Z-SP5BLxK8";
-
-  const generateGeminiResponse = async (userMessage: string): Promise<string> => {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `You are a Hindu spiritual advisor specializing in concepts of Karma and Dharma. 
-                    Provide thoughtful, compassionate advice about the user's spiritual journey based on Hindu philosophy.
-                    Include relevant quotes from Hindu texts if appropriate. 
-                    Keep responses focused on Hindu spirituality, karma, dharma, and personal growth.
-                    User message: ${userMessage}`
-                  }
-                ]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 1024,
-            }
-          }),
-        }
-      );
-
-      const data = await response.json();
-      
-      if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-        return data.candidates[0].content.parts[0].text;
-      } else {
-        console.error("Unexpected response format:", data);
-        return "I apologize, but I'm having trouble connecting with ancient wisdom right now. Please try again in a moment.";
-      }
-    } catch (error) {
-      console.error("Error calling Gemini API:", error);
-      return "The cosmic energies seem disturbed. I cannot connect to the source of wisdom at this moment. Please try again later.";
-    }
-  };
 
   const handleSubmit = async () => {
     if (!inputMessage.trim()) return;
