@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
@@ -26,15 +27,57 @@ const AIAdvisor = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Sample responses for demo purposes
-  const demoResponses = [
-    "In Hindu philosophy, karma refers to the spiritual principle of cause and effect where intent and actions of an individual influence their future. Your recent decision seems aligned with good karma as it benefits others without expectation of reward.",
-    "Dharma, or righteous duty, suggests that your current path may need alignment with your true purpose. Consider meditation on what truly fulfills you while serving others.",
-    "The Bhagavad Gita teaches: 'It is better to perform one's own duties imperfectly than to master the duties of another.' Your question suggests you might be looking outside your natural dharma. Reflect on your innate talents and how they can serve the world.",
-    "Karma is not punishment but a teacher. These challenges you're facing may be opportunities for spiritual growth. The ancient texts suggest facing them with equanimity—neither elation in success nor depression in failure."
-  ];
+  // Gemini API key - normally this would be in an environment variable or stored securely
+  const geminiApiKey = "AIzaSyDEYqEOBQyethqZd8MYtIjO9Z-SP5BLxK8";
 
-  const handleSubmit = () => {
+  const generateGeminiResponse = async (userMessage: string): Promise<string> => {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `You are a Hindu spiritual advisor specializing in concepts of Karma and Dharma. 
+                    Provide thoughtful, compassionate advice about the user's spiritual journey based on Hindu philosophy.
+                    Include relevant quotes from Hindu texts if appropriate. 
+                    Keep responses focused on Hindu spirituality, karma, dharma, and personal growth.
+                    User message: ${userMessage}`
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 1024,
+            }
+          }),
+        }
+      );
+
+      const data = await response.json();
+      
+      if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+        return data.candidates[0].content.parts[0].text;
+      } else {
+        console.error("Unexpected response format:", data);
+        return "I apologize, but I'm having trouble connecting with ancient wisdom right now. Please try again in a moment.";
+      }
+    } catch (error) {
+      console.error("Error calling Gemini API:", error);
+      return "The cosmic energies seem disturbed. I cannot connect to the source of wisdom at this moment. Please try again later.";
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!inputMessage.trim()) return;
     
     // Add user message
@@ -49,25 +92,44 @@ const AIAdvisor = () => {
     setInputMessage('');
     setIsLoading(true);
     
-    // Simulate AI response
-    setTimeout(() => {
-      const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
+    try {
+      // Get response from Gemini API
+      const aiResponseText = await generateGeminiResponse(inputMessage);
       
       const aiResponse: Message = {
         id: messages.length + 2,
-        content: randomResponse,
+        content: aiResponseText,
         sender: 'ai',
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, aiResponse]);
-      setIsLoading(false);
       
       toast({
         title: "New wisdom received",
         description: "The AI advisor has shared guidance with you.",
       });
-    }, 1500);
+    } catch (error) {
+      console.error("Error generating response:", error);
+      
+      // Add fallback response in case of error
+      const errorResponse: Message = {
+        id: messages.length + 2,
+        content: "I'm sorry, my connection to the cosmic wisdom is temporarily disturbed. Please try again later.",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+      
+      toast({
+        title: "Connection issue",
+        description: "Could not retrieve wisdom at this time.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
