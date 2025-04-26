@@ -1,0 +1,79 @@
+
+import { useState } from "react";
+import { Message } from "@/types/advisor";
+import { useToast } from "@/hooks/use-toast";
+import { generateGeminiResponse } from "@/utils/gemini-api";
+
+export const useAdvisorMessages = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      content: "Namaste 🙏 I am your AI Karma & Dharma advisor. I can help you understand your path according to Hindu philosophy. What would you like guidance on today?",
+      sender: 'ai',
+      timestamp: new Date()
+    }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async () => {
+    if (!inputMessage.trim()) return;
+    
+    const userMessage: Message = {
+      id: messages.length + 1,
+      content: inputMessage,
+      sender: 'user',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsLoading(true);
+    
+    try {
+      const aiResponseText = await generateGeminiResponse(inputMessage);
+      
+      const aiResponse: Message = {
+        id: messages.length + 2,
+        content: aiResponseText,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
+      
+      toast({
+        title: "New wisdom received",
+        description: "The AI advisor has shared guidance with you.",
+      });
+    } catch (error) {
+      console.error("Error generating response:", error);
+      
+      const errorResponse: Message = {
+        id: messages.length + 2,
+        content: "I'm sorry, my connection to the cosmic wisdom is temporarily disturbed. Please try again later.",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+      
+      toast({
+        title: "Connection issue",
+        description: "Could not retrieve wisdom at this time.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    messages,
+    inputMessage,
+    setInputMessage,
+    isLoading,
+    handleSubmit
+  };
+};

@@ -1,87 +1,13 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Book, BellRing, SendHorizontal, User, Star, Sparkles, BookOpen } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { generateGeminiResponse } from "@/utils/gemini-api";
-
-interface Message {
-  id: number;
-  content: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
+import { BellRing, Book, Star, Sparkles, BookOpen } from "lucide-react";
+import MessageList from "./advisor/MessageList";
+import ChatInput from "./advisor/ChatInput";
+import { useAdvisorMessages } from "@/hooks/useAdvisorMessages";
 
 const AIAdvisor = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      content: "Namaste 🙏 I am your AI Karma & Dharma advisor. I can help you understand your path according to Hindu philosophy. What would you like guidance on today?",
-      sender: 'ai',
-      timestamp: new Date()
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleSubmit = async () => {
-    if (!inputMessage.trim()) return;
-    
-    // Add user message
-    const userMessage: Message = {
-      id: messages.length + 1,
-      content: inputMessage,
-      sender: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsLoading(true);
-    
-    try {
-      // Get response from Gemini API
-      const aiResponseText = await generateGeminiResponse(inputMessage);
-      
-      const aiResponse: Message = {
-        id: messages.length + 2,
-        content: aiResponseText,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
-      
-      toast({
-        title: "New wisdom received",
-        description: "The AI advisor has shared guidance with you.",
-      });
-    } catch (error) {
-      console.error("Error generating response:", error);
-      
-      // Add fallback response in case of error
-      const errorResponse: Message = {
-        id: messages.length + 2,
-        content: "I'm sorry, my connection to the cosmic wisdom is temporarily disturbed. Please try again later.",
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, errorResponse]);
-      
-      toast({
-        title: "Connection issue",
-        description: "Could not retrieve wisdom at this time.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { messages, inputMessage, setInputMessage, isLoading, handleSubmit } = useAdvisorMessages();
 
   return (
     <section id="advisor" className="py-20 relative">
@@ -118,65 +44,16 @@ const AIAdvisor = () => {
             </CardHeader>
             
             <CardContent className="p-0">
-              <div className="h-[400px] overflow-y-auto p-6">
-                {messages.map(message => (
-                  <div 
-                    key={message.id} 
-                    className={`flex mb-4 ${
-                      message.sender === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
-                    <div className={`flex items-start max-w-[80%] ${
-                      message.sender === 'user' 
-                        ? 'bg-mystic/20 rounded-tl-2xl rounded-tr-sm rounded-bl-2xl animate-fade-in' 
-                        : 'bg-cosmicPurple/10 rounded-tr-2xl rounded-tl-sm rounded-br-2xl animate-fade-in'
-                    } p-4`}>
-                      {message.sender === 'ai' && (
-                        <BellRing className="h-5 w-5 mr-2 mt-1 text-cosmicPurple shrink-0" />
-                      )}
-                      <div>
-                        <p className="text-gray-800 dark:text-gray-200">{message.content}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                        </p>
-                      </div>
-                      {message.sender === 'user' && (
-                        <User className="h-5 w-5 ml-2 mt-1 text-mystic shrink-0" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start mb-4">
-                    <div className="bg-cosmicPurple/10 rounded-tr-2xl rounded-tl-sm rounded-br-2xl p-4">
-                      <div className="flex space-x-2">
-                        <div className="h-2 w-2 bg-cosmicPurple rounded-full animate-pulse"></div>
-                        <div className="h-2 w-2 bg-cosmicPurple rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                        <div className="h-2 w-2 bg-cosmicPurple rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <MessageList messages={messages} isLoading={isLoading} />
             </CardContent>
             
             <CardFooter className="border-t border-mystic/30 p-4">
-              <div className="flex w-full">
-                <Textarea 
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="Ask about your karma or dharma..."
-                  className="flex-grow mr-2 focus:border-mystic"
-                  onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
-                />
-                <Button 
-                  disabled={isLoading || !inputMessage.trim()} 
-                  onClick={handleSubmit}
-                  className="bg-spiritual-gradient hover:opacity-90"
-                >
-                  <SendHorizontal className="h-5 w-5" />
-                </Button>
-              </div>
+              <ChatInput 
+                inputMessage={inputMessage}
+                setInputMessage={setInputMessage}
+                handleSubmit={handleSubmit}
+                isLoading={isLoading}
+              />
             </CardFooter>
           </Card>
           
