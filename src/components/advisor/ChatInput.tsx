@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { SendHorizontal } from "lucide-react";
+import { useState } from "react";
 
 interface ChatInputProps {
   inputMessage: string;
@@ -11,6 +12,15 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ inputMessage, setInputMessage, handleSubmit, isLoading }: ChatInputProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (inputMessage.trim() && !isLoading) {
+        handleSubmit();
+      }
+    }
+  };
+
   return (
     <div className="flex w-full">
       <Textarea 
@@ -18,7 +28,7 @@ const ChatInput = ({ inputMessage, setInputMessage, handleSubmit, isLoading }: C
         onChange={(e) => setInputMessage(e.target.value)}
         placeholder="Ask about your karma or dharma..."
         className="flex-grow mr-2 focus:border-mystic"
-        onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
+        onKeyDown={handleKeyDown}
       />
       <Button 
         disabled={isLoading || !inputMessage.trim()} 

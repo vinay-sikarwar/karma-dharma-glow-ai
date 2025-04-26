@@ -31,17 +31,30 @@ export const useAdvisorMessages = () => {
     setInputMessage('');
     setIsLoading(true);
     
+    // Add a typing indicator
+    const typingIndicator: Message = {
+      id: messages.length + 2,
+      content: "",
+      sender: 'ai',
+      timestamp: new Date(),
+      isTyping: true
+    };
+    
+    setMessages(prev => [...prev, typingIndicator]);
+    
     try {
       const aiResponseText = await generateGeminiResponse(inputMessage);
       
-      const aiResponse: Message = {
-        id: messages.length + 2,
-        content: aiResponseText,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
+      // Remove typing indicator and add actual response
+      setMessages(prev => {
+        const filtered = prev.filter(msg => !msg.isTyping);
+        return [...filtered, {
+          id: filtered.length + 1,
+          content: aiResponseText,
+          sender: 'ai',
+          timestamp: new Date()
+        }];
+      });
       
       toast({
         title: "New wisdom received",
@@ -50,14 +63,16 @@ export const useAdvisorMessages = () => {
     } catch (error) {
       console.error("Error generating response:", error);
       
-      const errorResponse: Message = {
-        id: messages.length + 2,
-        content: "I'm sorry, my connection to the cosmic wisdom is temporarily disturbed. Please try again later.",
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, errorResponse]);
+      // Remove typing indicator and add error message
+      setMessages(prev => {
+        const filtered = prev.filter(msg => !msg.isTyping);
+        return [...filtered, {
+          id: filtered.length + 1,
+          content: "I'm sorry, my connection to the cosmic wisdom is temporarily disturbed. Please try again later.",
+          sender: 'ai',
+          timestamp: new Date()
+        }];
+      });
       
       toast({
         title: "Connection issue",

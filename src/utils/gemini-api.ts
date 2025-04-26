@@ -16,13 +16,6 @@ export interface KarmaReading {
   dailyTask: string;
 }
 
-export interface DreamInterpretation {
-  spiritualMeaning: string;
-  symbolism: string;
-  journalingSuggestion: string;
-  recommendedChant: string;
-}
-
 const API_KEY = "AIzaSyDEYqEOBQyethqZd8MYtIjO9Z-SP5BLxK8";
 
 /**
@@ -31,7 +24,7 @@ const API_KEY = "AIzaSyDEYqEOBQyethqZd8MYtIjO9Z-SP5BLxK8";
 export async function generateGeminiResponse(userMessage: string): Promise<string> {
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -50,13 +43,7 @@ export async function generateGeminiResponse(userMessage: string): Promise<strin
                 }
               ]
             }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
+          ]
         }),
       }
     );
@@ -78,10 +65,14 @@ export async function generateGeminiResponse(userMessage: string): Promise<strin
 /**
  * Generate a karma reading based on the user's current state
  */
-export async function generateKarmaReading(userReflection: string): Promise<KarmaReading> {
+export async function generateKarmaReading(userReflection: string, userName: string = "", birthDate: string = ""): Promise<KarmaReading> {
   try {
+    const userContext = userName && birthDate ? 
+      `User name: ${userName}, Birth date: ${birthDate}. Based on this information and the user's reflection` : 
+      "Based on the user's reflection";
+    
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -92,7 +83,7 @@ export async function generateKarmaReading(userReflection: string): Promise<Karm
             {
               parts: [
                 {
-                  text: `Based on the user's reflection, provide a "Karma Reading" with these elements:
+                  text: `${userContext}, provide a "Karma Reading" with these elements:
                   1. Emotional State: Analyze the sentiment and provide a short description of their emotional state
                   2. Associated Chakra: Which of the seven chakras (Root, Sacral, Solar Plexus, Heart, Throat, Third Eye, Crown) is most relevant to their situation and why
                   3. Daily Dharma Advice: A spiritual quote or teaching relevant to their situation
@@ -104,13 +95,7 @@ export async function generateKarmaReading(userReflection: string): Promise<Karm
                 }
               ]
             }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
+          ]
         }),
       }
     );
@@ -146,82 +131,6 @@ export async function generateKarmaReading(userReflection: string): Promise<Karm
       chakra: "Heart Chakra",
       dharmaAdvice: "The journey of a thousand miles begins with a single step.",
       dailyTask: "Practice 5 minutes of mindful breathing"
-    };
-  }
-}
-
-/**
- * Interpret dreams through spiritual lenses
- */
-export async function interpretDream(dreamDescription: string): Promise<DreamInterpretation> {
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `As a Hindu spiritual advisor, interpret the following dream through multiple spiritual lenses (Vedic, Jungian, Buddhist, etc.).
-                  Provide these elements:
-                  1. Spiritual Meaning: The deeper spiritual significance of the dream
-                  2. Symbolism: Key symbols in the dream and their meanings
-                  3. Journaling Suggestion: A reflective question for the dreamer to explore
-                  4. Recommended Chant: A mantra or chant that might help the dreamer process this dream
-                  
-                  Format the response as JSON with fields: spiritualMeaning, symbolism, journalingSuggestion, recommendedChant
-                  
-                  Dream description: ${dreamDescription}`
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
-        }),
-      }
-    );
-
-    const data = await response.json() as GeminiResponse;
-    
-    if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-      try {
-        return JSON.parse(data.candidates[0].content.parts[0].text) as DreamInterpretation;
-      } catch (parseError) {
-        console.error("Error parsing dream interpretation:", parseError);
-        // Fallback interpretation if JSON parsing fails
-        return {
-          spiritualMeaning: "Dreams connect us to the spiritual realm and can offer guidance.",
-          symbolism: "Common symbols often represent aspects of your inner self.",
-          journalingSuggestion: "How might this dream be guiding your spiritual journey?",
-          recommendedChant: "Om Shanti Shanti Shanti"
-        };
-      }
-    } else {
-      console.error("Unexpected dream interpretation response format:", data);
-      return {
-        spiritualMeaning: "Dreams connect us to the spiritual realm and can offer guidance.",
-        symbolism: "Common symbols often represent aspects of your inner self.",
-        journalingSuggestion: "How might this dream be guiding your spiritual journey?",
-        recommendedChant: "Om Shanti Shanti Shanti"
-      };
-    }
-  } catch (error) {
-    console.error("Error interpreting dream:", error);
-    return {
-      spiritualMeaning: "Dreams connect us to the spiritual realm and can offer guidance.",
-      symbolism: "Common symbols often represent aspects of your inner self.",
-      journalingSuggestion: "How might this dream be guiding your spiritual journey?",
-      recommendedChant: "Om Shanti Shanti Shanti"
     };
   }
 }
